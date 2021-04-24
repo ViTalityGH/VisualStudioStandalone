@@ -21,19 +21,19 @@ if "%1:~0,2%"=="--" shift
 set "ARG0=%1"
 
 :: Registry keys.
-set VS_KEY="HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\SxS\VS7"
-set VS_VAL="15.0"
 set WIN_SDK_KEY="SOFTWARE\WOW6432Node\Microsoft\Windows Kits\Installed Roots"
 set WIN_SDK_VAL="KitsRoot10"
 
 :: Find out where Visual Studio is installed.
-FOR /F "usebackq skip=2 tokens=1-2*" %%A IN (`REG QUERY %VS_KEY% /v %VS_VAL% 2^>nul`) DO (
-    set VS_INSTALL_DIR=%%C
+set VS_WHERE="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+for /f "usebackq tokens=*" %%i in (`%VS_WHERE% -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+  set VS_INSTALL_DIR=%%i
 )
 if not defined VS_INSTALL_DIR (
     echo No Visual Studio installation found!
     exit /B 1
 )
+
 echo Visual Studio installation found at %VS_INSTALL_DIR%
 
 :: Get current Visual Studio version.
